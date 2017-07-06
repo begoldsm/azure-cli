@@ -2,6 +2,19 @@
 
 Release History
 ===============
+
+unreleased
+++++++++++++++++++
+* vm/vmss: use newer api-version of "2017-03-30"
+* BC: 'sku.managed' is removed from 'az vm availability-set show' (use sku.name instead)
+* `vmss create`: add arguments `--app-gateway-capacity` and `--app-gateway-sku`.
+* `vm/vmss create`: if --admin-password is specified for Linux images, automatically will change from SSH authentication
+  to password without needing `--authentication-type password` explicitly.
+* `vm/vmss create`: added information statements that can be shown using --debug
+* `vm/vmss create`: added client-side validation where certain parameters were previously just ignored.
+* `vmss create`: support public ip per instance, instance custom domain name, custom dns servers
+
+
 2.0.9 (2017-06-21)
 ++++++++++++++++++
 * vm/vmss: lower thread number used for 'vm image list --all' to avoid exceeding the OS opened file limits  
@@ -10,25 +23,11 @@ Release History
 
 2.0.8 (2017-06-13)
 ++++++++++++++++++
-* Remove useless line-too-long suppression
 * vm: support attaching data disks on vm create (#3644)
 * Improve table output for vm/vmss commands: get-instance-view, list, show, list-usage, etc
-* Fix all bad-continuation pylint disables
 * support configuring disk caching on attaching a managed disk (#3513)
-* core: Create subscription clients with right SDK profile (#3635)
-* Fix various pylint disable rules
-* Fixed _help.py for get-boot-log (#3616)
-* Eliminating too-many-arguments pylint disable rule (#3583)
-* output: add support for picking table output fields through jmespath query  (#3581)
 * Support attaching existing data disks on vm create
-* Fix attribute-defined-outside-init pylint disable rules
-* Fix method-hidden pylint disable rule
-* Move all existing recording files to latest folder
-* fix typos in error message (#3643)
-* Remove various pylint disable statements
 * VM/VMSS: fixed an issue with name generation that resulted in the create commands not being idempotent.
-* [VM/VMSS] Fix idempotency for VM/VMSS create (#3586)
-* Remove too-many-nested-blocks (#3469) (#3469)
 
 2.0.7 (2017-05-09)
 ++++++++++++++++++

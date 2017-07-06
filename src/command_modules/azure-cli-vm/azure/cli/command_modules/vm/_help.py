@@ -123,6 +123,9 @@ helps['vmss create'] = """
         - name: Create a Linux VM scale set from a custom image using an existing ssh public key of ~/.ssh/id_rsa.pub.
           text: >
             az vmss create -n MyVmss -g MyResourceGroup --image MyImage
+        - name: Create a Linux VM scale set, a load balancer, each VM has a public-ip address, a custom domain name, own dns servers
+          text: >
+            az vmss create -n MyVmss -g MyResourceGroup --image centos --public-ip-per-vm --vm-domain-name myvmss --dns-servers 10.0.0.6 10.0.0.5
         - name: Create a Linux VM scale set with a cloud-init script (https://docs.microsoft.com/azure/virtual-machines/virtual-machines-linux-using-cloud-init).
           text: >
             az vmss create -g MyResourceGroup -n MyVmss --image debian --custom_data MyCloudInitScript.yml
@@ -748,6 +751,11 @@ helps['vmss list-instance-connection-info'] = """
     short-summary: Get the IP address and port number used to connect to individual instances.
 """
 
+helps['vmss list-instance-public-ips'] = """
+    type: command
+    short-summary: List public IP addresses of VM instances
+"""
+
 helps['vmss extension'] = """
     type: group
     short-summary: Extend the functionality of your VM scale set with extensions.
@@ -878,7 +886,7 @@ helps['vm resize'] = """
         - name: Resize a VM.
           text: az vm resize -g MyResourceGroup -n MyVm --size Standard_DS3_v2
 {0}
-""".format(vm_ids_example.format('Resize VMs by VM Ids', 'vm redeploy --size Standard_DS3_v2'))
+""".format(vm_ids_example.format('Resize VMs by VM Ids', 'vm resize --size Standard_DS3_v2'))
 
 helps['vm restart'] = """
     type: command

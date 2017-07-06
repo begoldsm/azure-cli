@@ -10,7 +10,8 @@ from azure.mgmt.compute.models import (CachingTypes,
                                        UpgradeMode)
 from azure.mgmt.storage.models import SkuName
 
-from azure.cli.core.commands import register_cli_argument, CliArgumentType, register_extra_cli_argument
+from azure.cli.core.commands import register_cli_argument, CliArgumentType, VersionConstraint
+from azure.cli.core.profiles import ResourceType
 from azure.cli.core.commands.validators import \
     (get_default_location_from_resource_group, validate_file_or_dict)
 from azure.cli.core.commands.parameters import \
@@ -253,10 +254,17 @@ register_cli_argument('vmss create', 'backend_pool_name', help='Name to use for 
 register_cli_argument('vmss create', 'nat_pool_name', help='Name to use for the NAT pool when creating a new load balancer.', options_list=['--lb-nat-pool-name', '--nat-pool-name'], arg_group='Network Balancer')
 register_cli_argument('vmss create', 'backend_port', help='When creating a new load balancer, backend port to open with NAT rules (Defaults to 22 on Linux and 3389 on Windows). When creating an application gateway, the backend port to use for the backend HTTP settings.', type=int, arg_group='Network Balancer')
 register_cli_argument('vmss create', 'app_gateway_subnet_address_prefix', help='The subnet IP address prefix to use when creating a new application gateway in CIDR format.', arg_group='Network Balancer')
+register_cli_argument('vmss create', 'app_gateway_sku', help='SKU when creating a new application gateway.', arg_group='Network Balancer')
+register_cli_argument('vmss create', 'app_gateway_capacity', help='The number of instances to use when creating a new application gateway.', arg_group='Network Balancer')
 register_cli_argument('vmss create', 'instance_count', help='Number of VMs in the scale set.', type=int)
 register_cli_argument('vmss create', 'disable_overprovision', help='Overprovision option (see https://azure.microsoft.com/en-us/documentation/articles/virtual-machine-scale-sets-overview/ for details).', action='store_true')
 register_cli_argument('vmss create', 'upgrade_policy_mode', help=None, **enum_choice_list(UpgradeMode))
 register_cli_argument('vmss create', 'vm_sku', help='Size of VMs in the scale set.  See https://azure.microsoft.com/en-us/pricing/details/virtual-machines/ for size info.')
+
+with VersionConstraint(ResourceType.MGMT_COMPUTE, min_api='2017-03-30') as c:
+    c.register_cli_argument('vmss create', 'public_ip_per_vm', action='store_true', help="Each VM instance will have a public ip", arg_group='Network')
+    c.register_cli_argument('vmss create', 'vm_domain_name', help="domain name of VM instances, once configured, the FQDN is 'vm<vm-index>.<vm-domain-name>.<..rest..>'", arg_group='Network')
+    c.register_cli_argument('vmss create', 'dns_servers', nargs='+', help="space separated IP addresses of DNS servers, e.g. 10.0.0.5 10.0.0.6", arg_group='Network')
 
 register_cli_argument('vm encryption', 'volume_type', help='Type of volume that the encryption operation is performed on', **enum_choice_list(['DATA', 'OS', 'ALL']))
 register_cli_argument('vm encryption', 'force', action='store_true', help='continue with encryption operations regardless of the warnings')
@@ -278,10 +286,10 @@ register_cli_argument('image', 'image_name', arg_type=name_arg_type, id_part='na
 register_cli_argument('image create', 'name', arg_type=name_arg_type, help='new image name')
 
 # here we collpase all difference image sources to under 2 common arguments --os-disk-source --data-disk-sources
-register_extra_cli_argument('image create', 'source', validator=process_image_create_namespace,
-                            help='OS disk source of the new image, including a virtual machine id or name, sas uri to a os disk blob, managed os disk id or name, or os snapshot id or name')
-register_extra_cli_argument('image create', 'data_disk_sources', nargs='+',
-                            help='space separated 1 or more data disk sources, including sas uri to a blob, managed disk id or name, or snapshot id or name')
+register_cli_argument('image create', 'source', validator=process_image_create_namespace,
+                      help='OS disk source from the same region, including a virtual machine id or name, os disk blob uri, managed os disk id or name, or os snapshot id or name')
+register_cli_argument('image create', 'data_disk_sources', nargs='+',
+                      help='space separated 1 or more data disk sources, including unmanaged blob uri, managed disk id or name, or snapshot id or name')
 register_cli_argument('image create', 'source_virtual_machine', ignore_type)
 register_cli_argument('image create', 'os_blob_uri', ignore_type)
 register_cli_argument('image create', 'os_disk', ignore_type)
@@ -291,8 +299,8 @@ register_cli_argument('image create', 'data_disks', ignore_type)
 register_cli_argument('image create', 'data_snapshots', ignore_type)
 
 for scope in ['disk', 'snapshot']:
-    register_extra_cli_argument(scope + ' create', 'source', validator=process_disk_or_snapshot_create_namespace,
-                                help='source to create the disk from, including a sas blob uri to a blob, managed disk id or name, or snapshot id or name')
+    register_cli_argument(scope + ' create', 'source', validator=process_disk_or_snapshot_create_namespace,
+                          help='source to create the disk/snapshot from, including unmanaged blob uri, managed disk id or name, or snapshot id or name')
     register_cli_argument(scope, 'source_blob_uri', ignore_type)
     register_cli_argument(scope, 'source_disk', ignore_type)
     register_cli_argument(scope, 'source_snapshot', ignore_type)
